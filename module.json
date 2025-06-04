@@ -1,4 +1,5 @@
 {
+  "id": "npc-generator-gpt",
   "name": "npc-generator-gpt",
   "title": "NPC Generator (GPT)",
   "description": "Generate D&D 5e NPCs using GPT",
