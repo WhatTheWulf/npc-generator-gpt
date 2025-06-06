@@ -50,11 +50,11 @@ async function generateNPC(promptText) {
       "Authorization": `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: "gpt-4o",
+      model: "gpt-3.5-turbo-1106", // statt "gpt-4o"
       messages: [
         {
           role: "system",
-          content: `Du bist ein JSON-Generator für FoundryVTT D&D5e. Gib ausschließlich ein gültiges JSON-Objekt für einen neuen Actor im D&D5e-Format zurück. KEINE Kommentare, KEINE Einleitung, KEIN Text – nur das JSON.`
+          content: `Du bist ein JSON-Generator für FoundryVTT 13 D&D5e. Gib ausschließlich ein gültiges JSON-Objekt für einen neuen Actor im D&D5e-Format zurück, basierend auf gegebenem manuellen input. KEINE Kommentare, KEINE Einleitung, KEIN Text – nur das JSON.`
         },
         {
           role: "user",
