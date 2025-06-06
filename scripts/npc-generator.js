@@ -43,36 +43,40 @@ async function generateNPC(promptText) {
     return null;
   }
 
-  let result = null; // Deklariert außerhalb des try-Blocks
-
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: "gpt-4o",
+      messages: [
         {
-        role: "system",
-        content: "Du bist ein hilfreicher Assistent, der JSON-Antworten im Format von FoundryVTT D&D5e erzeugt. Gib ausschließlich ein reines JSON-Objekt zurück, ohne Kommentare oder zusätzliche Erklärungen."
+          role: "system",
+          content: `Du bist ein JSON-Generator für FoundryVTT D&D5e. Gib ausschließlich ein gültiges JSON-Objekt für einen neuen Actor im D&D5e-Format zurück. KEINE Kommentare, KEINE Einleitung, KEIN Text – nur das JSON.`
         },
-          { role: "user", content: `Erzeuge einen NPC: ${promptText}` }
-        ],
-        temperature: 0.8,
-        max_tokens: 500
-      })
-    });
+        {
+          role: "user",
+          content: `Erzeuge einen NPC: ${promptText}`
+        }
+      ],
+      temperature: 0.8,
+      max_tokens: 700
+    })
+  });
 
-    if (!response.ok) {
-      ui.notifications.error("Fehler bei der OpenAI API.");
-      return null;
-    }
-
+  let result;
+  try {
     result = await response.json();
-    const npcJSON = JSON.parse(result.choices[0].message.content);
+    console.log("GPT-Rohantwort:", result.choices[0].message.content);
+
+    const content = result.choices[0].message.content.trim();
+    const jsonStart = content.indexOf("{");
+    const jsonEnd = content.lastIndexOf("}");
+    const jsonString = content.slice(jsonStart, jsonEnd + 1);
+
+    const npcJSON = JSON.parse(jsonString);
     return npcJSON;
 
   } catch (e) {
@@ -81,5 +85,3 @@ async function generateNPC(promptText) {
     return null;
   }
 }
-
-
