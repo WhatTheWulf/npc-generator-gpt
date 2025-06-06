@@ -7,7 +7,7 @@
   "author": "WhatTheWulf",
   "minimumCoreVersion": "13",
   "compatibleCoreVersion": "13",
-  "scripts": ["scripts/npc-generator.js"],
+  "esmodules": ["scripts/npc-generator.js"],
   "manifest": "https://raw.githubusercontent.com/WhatTheWulf/npc-generator-gpt/main/module.json",
   "download": "https://github.com/WhatTheWulf/npc-generator-gpt/archive/refs/heads/main.zip",
   "license": "MIT"
