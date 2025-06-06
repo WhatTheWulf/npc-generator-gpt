@@ -65,14 +65,14 @@ async function generateNPC(promptText) {
     return null;
   }
 
-  try {
-    const result = await response.json();
-    const npcJSON = JSON.parse(result.choices[0].message.content);
-    return npcJSON;
-  } catch (e) {
-    console.warn("Antwort war kein valides JSON:", e);
-
-    ui.notifications.warn("Konnte KI-Antwort nicht verarbeiten.");
-    return null;
-  }
+let result = null;
+try {
+  result = await response.json();
+  const npcJSON = JSON.parse(result.choices[0].message.content);
+  return npcJSON;
+} catch (e) {
+  console.warn("Antwort war kein valides JSON:", result); // result ist garantiert definiert
+  ui.notifications.warn("Konnte KI-Antwort nicht verarbeiten.");
+  return null;
+}
 }
