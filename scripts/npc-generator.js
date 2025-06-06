@@ -50,7 +50,7 @@ async function generateNPC(promptText) {
       "Authorization": `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: "gpt-4o",
+      model: "gpt-4",
       messages: [
         {
           role: "system",
@@ -66,7 +66,7 @@ async function generateNPC(promptText) {
         }
       ],
       temperature: 0.8,
-      max_tokens: 700
+      max_tokens: 1000
     })
   });
 
