@@ -43,7 +43,7 @@ async function generateNPC(promptText) {
     return null;
   }
 
-  let result = null; // <- AUSSERHALB des try-catch-Blocks
+  let result = null; // <- Richtig deklariert, außerhalb von try
 
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -69,14 +69,13 @@ async function generateNPC(promptText) {
     }
 
     result = await response.json();
-
-    // GPT-Antwort extrahieren und zurückgeben
     const npcJSON = JSON.parse(result.choices[0].message.content);
     return npcJSON;
 
   } catch (e) {
-    console.warn("Antwort war kein valides JSON:", result); // result ist hier gültig
+    console.warn("Antwort war kein valides JSON:", result); // <- result ist jetzt definiert
     ui.notifications.warn("Konnte KI-Antwort nicht verarbeiten.");
     return null;
   }
 }
+
