@@ -1,11 +1,13 @@
-// Registrierung des Settings: Direkt beim Laden des Skripts
-game.settings.register("npc-generator-gpt", "openaiApiKey", {
-  name: "OpenAI API Key",
-  hint: "Dein persönlicher OpenAI API Key. Wird nur lokal gespeichert.",
-  scope: "client",
-  config: true,
-  type: String,
-  default: ""
+// Registrierung des Settings: Im init-Hook
+Hooks.once("init", () => {
+  game.settings.register("npc-generator-gpt", "openaiApiKey", {
+    name: "OpenAI API Key",
+    hint: "Dein persönlicher OpenAI API Key. Wird nur lokal gespeichert.",
+    scope: "client",
+    config: true,
+    type: String,
+    default: ""
+  });
 });
 
 Hooks.once('ready', async function () {
