@@ -57,8 +57,8 @@ async function generateNPC(promptText) {
           content: `Du bist ein JSON-Generator für FoundryVTT 13 D&D5e. 
           { 
             role: "system", 
-            content: "Gib mir eine vollständige, valide FoundryVTT Actor JSON für D&D5e. Der NPC soll Persönlichkeit, Beruf, Gesinnung, Hintergrund, Motivation, Fähigkeiten und Ausrüstung enthalten. Baue ihn abwechslungsreich, kreativ und vollständig." },
-            KEINE Kommentare, KEINE Einleitung, KEIN Text – nur das JSON.`
+            content: "Gib mir eine vollständige, valide FoundryVTT 13 Actor JSON für D&D5e. Der NPC soll Persönlichkeit, Beruf, Gesinnung, Hintergrund, Motivation, Fähigkeiten und Ausrüstung enthalten. Baue ihn abwechslungsreich, kreativ und vollständig." },
+            KEINE Kommentare, KEINE Einleitung, KEIN Text – nur das zu FoundryVTT 13 kompatible JSON.`
         },
         {
           role: "user",
