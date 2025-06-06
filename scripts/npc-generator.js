@@ -1,3 +1,13 @@
+// Registrierung des Settings: Direkt am Anfang!
+game.settings.register("npc-generator-gpt", "openaiApiKey", {
+  name: "OpenAI API Key",
+  hint: "Dein persönlicher OpenAI API Key. Wird nur lokal gespeichert.",
+  scope: "client",
+  config: true,
+  type: String,
+  default: ""
+});
+
 Hooks.once('ready', async function () {
   if (!game.system.id.includes("dnd5e")) {
     ui.notifications.warn("NPC Generator GPT funktioniert nur mit D&D5e");
@@ -22,7 +32,12 @@ Hooks.once('ready', async function () {
 });
 
 async function generateNPC(promptText) {
-  const apiKey = "HIER_DEIN_API_KEY"; // später via game.settings ersetzbar
+  const apiKey = game.settings.get("npc-generator-gpt", "openaiApiKey");
+  if (!apiKey) {
+    ui.notifications.warn("Kein OpenAI API Key gesetzt. Bitte trage ihn in den Moduleinstellungen ein.");
+    return null;
+  }
+
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
