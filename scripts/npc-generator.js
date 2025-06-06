@@ -82,8 +82,9 @@ async function generateNPC(promptText) {
 
     const npcJSON = JSON.parse(jsonString);
     // Entferne oder ersetze ungültige _id
-    if (npcJSON._id && (!/^[a-zA-Z0-9]{16}$/.test(npcJSON._id))) 
-    {    delete npcJSON._id; // Entferne es, Foundry erstellt automatisch eine neue gültige ID    }
+    if (npcJSON._id && (!/^[a-zA-Z0-9]{16}$/.test(npcJSON._id))) {    
+      delete npcJSON._id; // Entferne es, Foundry erstellt automatisch eine neue gültige ID    
+    }
     return npcJSON;
 
   } catch (e) {
