@@ -70,7 +70,8 @@ async function generateNPC(promptText) {
     const npcJSON = JSON.parse(result.choices[0].message.content);
     return npcJSON;
   } catch (e) {
-    console.warn("Antwort war kein valides JSON:", result);
+    console.warn("Antwort war kein valides JSON:", e);
+
     ui.notifications.warn("Konnte KI-Antwort nicht verarbeiten.");
     return null;
   }
