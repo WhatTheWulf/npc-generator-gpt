@@ -50,15 +50,19 @@ async function generateNPC(promptText) {
       "Authorization": `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo-1106", // statt "gpt-4o"
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: `Du bist ein JSON-Generator für FoundryVTT 13 D&D5e. Gib ausschließlich ein gültiges JSON-Objekt für einen neuen Actor im D&D5e-Format zurück, basierend auf gegebenem manuellen input. KEINE Kommentare, KEINE Einleitung, KEIN Text – nur das JSON.`
+          content: `Du bist ein JSON-Generator für FoundryVTT 13 D&D5e. 
+          { 
+            role: "system", 
+            content: "Gib mir eine vollständige, valide FoundryVTT Actor JSON für D&D5e. Der NPC soll Persönlichkeit, Beruf, Gesinnung, Hintergrund, Motivation, Fähigkeiten und Ausrüstung enthalten. Baue ihn abwechslungsreich, kreativ und vollständig." },
+            KEINE Kommentare, KEINE Einleitung, KEIN Text – nur das JSON.`
         },
         {
           role: "user",
-          content: `Erzeuge einen NPC: ${promptText}`
+          content: `Erstelle einen einzigartigen D&D5e-NPC mit folgendem Fokus: ${promptText}. Gib die Daten als vollständige Actor JSON zurück.`
         }
       ],
       temperature: 0.8,
