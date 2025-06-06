@@ -27,7 +27,7 @@ Hooks.once('ready', async function () {
       title: "Neuer NPC mit GPT",
       content: `<label>Beschreibung oder Beruf:</label><input type="text" id="gpt-desc">`,
       callback: async (html) => {
-        const desc = html.querySelector("#gpt-desc").value || "mysteriöser Fremder";
+        const desc = html.find("#gpt-desc").val() || "mysteriöser Fremder";
         const npcData = await generateNPC(desc);
         if (npcData) await Actor.create(npcData);
       },
