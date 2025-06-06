@@ -1,4 +1,4 @@
-// Registrierung des Settings: Direkt am Anfang!
+// Registrierung des Settings: Direkt beim Laden des Skripts
 game.settings.register("npc-generator-gpt", "openaiApiKey", {
   name: "OpenAI API Key",
   hint: "Dein persönlicher OpenAI API Key. Wird nur lokal gespeichert.",
@@ -9,14 +9,17 @@ game.settings.register("npc-generator-gpt", "openaiApiKey", {
 });
 
 Hooks.once('ready', async function () {
+  // Funktioniert nur mit D&D5e
   if (!game.system.id.includes("dnd5e")) {
     ui.notifications.warn("NPC Generator GPT funktioniert nur mit D&D5e");
     return;
   }
 
+  // GPT-NPC Button einfügen
   const buttonHTML = `<button class="npc-gpt-button"><i class="fas fa-robot"></i> GPT NPC</button>`;
   $(buttonHTML).insertBefore("#actors .directory-footer");
 
+  // Bei Klick Dialog öffnen
   $(".npc-gpt-button").click(async () => {
     const input = await Dialog.prompt({
       title: "Neuer NPC mit GPT",
