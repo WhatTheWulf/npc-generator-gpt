@@ -43,36 +43,37 @@ async function generateNPC(promptText) {
     return null;
   }
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: "Gib mir eine vollständige Actor JSON für D&D5e." },
-        { role: "user", content: `Erzeuge einen NPC: ${promptText}` }
-      ],
-      temperature: 0.8,
-      max_tokens: 500
-    })
-  });
+  let result = null; // <-- Variable außerhalb deklarieren!
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: "Gib mir eine vollständige Actor JSON für D&D5e." },
+          { role: "user", content: `Erzeuge einen NPC: ${promptText}` }
+        ],
+        temperature: 0.8,
+        max_tokens: 500
+      })
+    });
 
-  if (!response.ok) {
-    ui.notifications.error("Fehler bei der OpenAI API.");
+    if (!response.ok) {
+      ui.notifications.error("Fehler bei der OpenAI API.");
+      return null;
+    }
+
+    result = await response.json();
+    const npcJSON = JSON.parse(result.choices[0].message.content);
+    return npcJSON;
+
+  } catch (e) {
+    console.warn("Antwort war kein valides JSON:", result); // Jetzt ist result garantiert bekannt
+    ui.notifications.warn("Konnte KI-Antwort nicht verarbeiten.");
     return null;
   }
-
-let result = null;
-try {
-  result = await response.json();
-  const npcJSON = JSON.parse(result.choices[0].message.content);
-  return npcJSON;
-} catch (e) {
-  console.warn("Antwort war kein valides JSON:", result); // result ist garantiert definiert
-  ui.notifications.warn("Konnte KI-Antwort nicht verarbeiten.");
-  return null;
-}
 }
