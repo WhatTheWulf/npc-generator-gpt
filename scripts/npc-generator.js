@@ -55,7 +55,10 @@ async function generateNPC(promptText) {
       body: JSON.stringify({
         model: "gpt-4o",
         messages: [
-          { role: "system", content: "Gib mir eine vollständige Actor JSON für D&D5e." },
+        {
+        role: "system",
+        content: "Du bist ein hilfreicher Assistent, der JSON-Antworten im Format von FoundryVTT D&D5e erzeugt. Gib ausschließlich ein reines JSON-Objekt zurück, ohne Kommentare oder zusätzliche Erklärungen."
+        },
           { role: "user", content: `Erzeuge einen NPC: ${promptText}` }
         ],
         temperature: 0.8,
