@@ -66,7 +66,7 @@ async function generateNPC(promptText) {
         }
       ],
       temperature: 0.8,
-      max_tokens: 1000
+      max_tokens: 2000
     })
   });
 
