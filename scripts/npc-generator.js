@@ -1,7 +1,7 @@
 // npc-generator.js
 // Basierend auf https://raw.githubusercontent.com/WhatTheWulf/npc-generator-gpt/refs/heads/main/scripts/npc-generator.js
 // Angepasst für direkten Import in Foundry VTT 13 mit vordefinierter ChatGPT-Datenstruktur
-// Kompatibel mit module.json (ID: npc-generator-gpt, Skript-Pfad: scripts/npc-generator.js)
+// Button im Actors Directory platziert
 
 class NPCGeneratorDialog extends FormApplication {
     static get defaultOptions() {
@@ -250,7 +250,7 @@ The response MUST be a valid JSON array containing only the generated NPCs.
     }
 }
 
-// Hooks, um den Dialog zu registrieren und ein Icon in der Leiste hinzuzufügen
+// --- Hooks für Foundry VTT Einstellungen und Buttonplatzierung ---
 Hooks.on("init", () => {
     game.settings.register("npc-generator-gpt", "openaiApiKey", {
         name: "OpenAI API Schlüssel",
@@ -277,22 +277,38 @@ Hooks.on("init", () => {
     });
 });
 
-Hooks.on("renderSidebarTab", async (app, html) => {
-    // Fügt den Button zur Combat Tracker Sidebar hinzu
-    if (app.options.id === "combat") {
-        const button = $(`<button class="npc-generator-button"><i class="fas fa-robot"></i> ChatGPT NPCs</button>`);
-        html.find(".directory-header").append(button);
-        button.click(() => {
+// Platziert den Button direkt im Actors Directory
+Hooks.on("renderActorDirectory", (app, html, data) => {
+    // Finde den Bereich, wo der "Create Actor" Button ist
+    const createActorButton = html.find('button[data-action="create"]');
+    if (createActorButton.length > 0) {
+        // Füge unseren Button direkt vor dem "Create Actor" Button ein
+        const npcGeneratorButton = $(`
+            <button class="npc-generator-button" type="button" title="Generate NPCs with ChatGPT">
+                <i class="fas fa-robot"></i> ChatGPT NPCs
+            </button>
+        `);
+        createActorButton.before(npcGeneratorButton);
+
+        // Füge den Event Listener hinzu
+        npcGeneratorButton.click(() => {
             new NPCGeneratorDialog().render(true);
         });
-    }
-    // Optional: Füge den Button auch zum Compendium-Tab hinzu, falls gewünscht
-    else if (app.options.id === "compendium") {
-         const button = $(`<button class="npc-generator-button"><i class="fas fa-robot"></i> ChatGPT NPCs</button>`);
-         html.find(".directory-footer").append(button);
-         button.click(() => {
-             new NPCGeneratorDialog().render(true);
-         });
+    } else {
+        // Fallback, falls der Button nicht gefunden wird (z.B. bei Änderungen in Foundry VTT)
+        // Füge ihn stattdessen am Ende des Headers hinzu
+        const directoryHeader = html.find('.directory-header');
+        if (directoryHeader.length > 0) {
+             const npcGeneratorButton = $(`
+                <button class="npc-generator-button" type="button" title="Generate NPCs with ChatGPT">
+                    <i class="fas fa-robot"></i> ChatGPT NPCs
+                </button>
+            `);
+            directoryHeader.append(npcGeneratorButton);
+            npcGeneratorButton.click(() => {
+                new NPCGeneratorDialog().render(true);
+            });
+        }
     }
 });
 
