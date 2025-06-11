@@ -1,37 +1,46 @@
 // npc-generator.js
-// Basierend auf https://raw.githubusercontent.com/WhatTheWulf/npc-generator-gpt/refs/heads/main/scripts/npc-generator.js
-// Angepasst für direkten Import in Foundry VTT 13 mit vordefinierter ChatGPT-Datenstruktur
-// Button im Actors Directory platziert
+// Dieses Skript ermöglicht die Generierung von D&D5e NPCs und ihren Items über ChatGPT
+// Es integriert sich als Button im Actors Directory von Foundry VTT.
 
 class NPCGeneratorDialog extends FormApplication {
     static get defaultOptions() {
+        // Standardoptionen für das FormApplication-Fenster
         return mergeObject(super.defaultOptions, {
-            classes: ["form", "npc-generator"],
-            // Der Pfad zum HTML-Template ist korrekt, da die Modul-ID "npc-generator-gpt" ist
+            classes: ["form", "npc-generator"], // CSS-Klassen für Styling
+            // Der Pfad zum HTML-Template. 'modules/MODUL-ID/pfad/zur/datei.html'
+            // Die Modul-ID ist 'npc-generator-gpt', daher ist der Pfad korrekt.
             template: "modules/npc-generator-gpt/templates/npc-generator.html",
-            width: 500,
-            height: "auto",
-            title: "ChatGPT NPC Generator"
+            width: 500, // Breite des Dialogfensters
+            height: "auto", // Automatische Höhe
+            title: "ChatGPT NPC Generator" // Titel des Dialogfensters
         });
     }
 
+    // Eindeutige ID für dieses FormApplication-Fenster
     get id() {
         return "npc-generator-dialog";
     }
 
+    // Methode zum Bereitstellen von Daten für das HTML-Template (hier keine spezifischen Daten benötigt)
     async getData() {
         return {};
     }
 
+    // Aktiviert Event-Listener für Buttons im HTML-Template
     activateListeners(html) {
         super.activateListeners(html);
+        // Listener für den "NPC generieren"-Button
         html.find(".generate-button").click(this._onClickGenerate.bind(this));
+        // Listener für den "OpenAI Schlüssel einstellen"-Button
         html.find(".openai-key-button").click(this._onClickOpenAIKeySettings.bind(this));
     }
 
+    // Event-Handler für das Öffnen der OpenAI-API-Schlüssel-Einstellungen
     _onClickOpenAIKeySettings(event) {
         event.preventDefault();
+        // Öffnet das allgemeine Einstellungsfenster von Foundry VTT
         new SettingsConfig().render(true);
+        // Wartet kurz und klickt dann auf den "Moduleinstellungen"-Tab, um den Benutzer zu führen
         setTimeout(() => {
             const moduleSettingsTab = document.querySelector('nav.tabs a[data-tab="modules"]');
             if (moduleSettingsTab) {
@@ -40,26 +49,30 @@ class NPCGeneratorDialog extends FormApplication {
         }, 100);
     }
 
+    // Event-Handler für den "NPC generieren"-Button
     async _onClickGenerate(event) {
         event.preventDefault();
-        const formData = new FormData(this.form);
-        const numNpcs = parseInt(formData.get("numNpcs"));
+        const formData = new FormData(this.form); // Erfasst Formulardaten
+        const numNpcs = parseInt(formData.get("numNpcs")); // Anzahl der zu generierenden NPCs
         const userPromptText = formData.get("prompt").trim(); // Benutzerdefinierter Prompt
-        const customModel = formData.get("customModel");
-        const temperature = parseFloat(formData.get("temperature"));
-        const topP = parseFloat(formData.get("topP"));
+        const customModel = formData.get("customModel"); // Benutzerdefiniertes OpenAI-Modell
+        const temperature = parseFloat(formData.get("temperature")); // Kreativität des Modells
+        const topP = parseFloat(formData.get("topP")); // Diversität der Antworten
 
+        // Validierung der Eingabe für die Anzahl der NPCs
         if (numNpcs <= 0) {
             ui.notifications.error("Die Anzahl der NPCs muss größer als 0 sein.");
             return;
         }
 
+        // Überprüfung des OpenAI API Schlüssels
         const apiKey = game.settings.get("npc-generator-gpt", "openaiApiKey");
         if (!apiKey) {
             ui.notifications.error("OpenAI API Schlüssel nicht konfiguriert. Bitte gehe zu den Moduleinstellungen.");
             return;
         }
 
+        // Auswahl des OpenAI Modells
         const model = customModel || game.settings.get("npc-generator-gpt", "openaiModel");
         if (!model) {
             ui.notifications.error("Kein OpenAI Modell ausgewählt. Bitte konfiguriere es in den Moduleinstellungen oder gib ein benutzerdefiniertes Modell an.");
@@ -67,9 +80,10 @@ class NPCGeneratorDialog extends FormApplication {
         }
 
         // --- Feste Vorlage für ChatGPT mit D&D5e spezifischen Feldern ---
-        // Dies stellt sicher, dass ChatGPT die benötigten Daten in korrektem Format liefert.
-        // Die 'data' für Items ist jetzt 'system' im D&D5e-System.
-        const dnd5eItemTypes = game.system.documentTypes.Item.join(', '); // Holt alle gültigen Item-Typen des D&D5e Systems
+        // Diese Vorlage stellt sicher, dass ChatGPT die benötigten Daten im korrekten JSON-Format liefert.
+        // Beachtet, dass Item-Daten in D&D5e unter 'system' statt 'data' liegen.
+        // Listet alle gültigen Item-Typen des aktuellen D&D5e Systems auf.
+        const dnd5eItemTypes = game.system.documentTypes.Item.join(', ');
 
         const basePrompt = `
 Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following structure:
@@ -125,9 +139,8 @@ For "spell":
 The response MUST be a valid JSON array containing only the generated NPCs.
 `;
 
-        // Füge den benutzerdefinierten Prompt hinzu, falls vorhanden
+        // Kombiniert den festen Prompt mit dem optionalen benutzerdefinierten Prompt
         const finalPrompt = userPromptText ? `${userPromptText}\n\n${basePrompt}` : basePrompt;
-
 
         ui.notifications.info("Sende Anfrage an ChatGPT...");
 
@@ -144,7 +157,7 @@ The response MUST be a valid JSON array containing only the generated NPCs.
             }],
             temperature: temperature,
             top_p: topP,
-            response_format: { "type": "json_object" } // Erzwingt JSON-Ausgabe (für neuere Modelle)
+            response_format: { "type": "json_object" } // Erzwingt JSON-Ausgabe von OpenAI (für neuere Modelle)
         });
 
         const requestOptions = {
@@ -157,6 +170,7 @@ The response MUST be a valid JSON array containing only the generated NPCs.
             const response = await fetch(url, requestOptions);
             const data = await response.json();
 
+            // Fehlerbehandlung für OpenAI API-Antworten
             if (data.error) {
                 ui.notifications.error(`ChatGPT API Fehler: ${data.error.message}`);
                 console.error("ChatGPT API Error:", data.error);
@@ -167,40 +181,42 @@ The response MUST be a valid JSON array containing only the generated NPCs.
 
             let generatedNpcsData;
             try {
+                // Versucht, die Antwort als JSON zu parsen
                 generatedNpcsData = JSON.parse(result);
+                // Stellt sicher, dass das Ergebnis ein Array ist, auch wenn nur ein NPC generiert wurde
                 if (!Array.isArray(generatedNpcsData)) {
                     generatedNpcsData = [generatedNpcsData];
                 }
             } catch (parseError) {
+                // Fehlerbehandlung, falls die JSON-Antwort ungültig ist
                 ui.notifications.error("Fehler beim Parsen der JSON-Antwort von ChatGPT. Überprüfe den Prompt und das Antwortformat.");
                 console.error("JSON Parse Error:", parseError);
                 console.error("ChatGPT Raw Response:", result);
                 return;
             }
 
-            // --- DIREKTE ERSTELLUNG VON FOUNDRY VTT DOKUMENTEN HIER ---
+            // --- DIREKTE ERSTELLUNG VON FOUNDRY VTT DOKUMENTEN ---
             for (const npcData of generatedNpcsData) {
                 try {
-                    // 1. Actor erstellen
-                    const actorType = npcData.type || "npc"; // Standardmäßig "npc" für D&D5e
+                    // 1. Actor (NPC) erstellen
+                    const actorType = npcData.type || "npc"; // Standardtyp "npc" für D&D5e
+                    // Validierung des Actor-Typs gegen die System-definierten Typen
                     if (!game.system.documentTypes.Actor.includes(actorType)) {
-                        ui.notifications.warn(`Ungültiger Actor-Typ "${actorType}" für NPC "${npcData.name || 'Unbekannt'}" ignoriert. Verwende "npc".`);
-                        // Setze den Typ auf einen gültigen Fallback, um die Erstellung zu ermöglichen
-                        npcData.type = "npc";
+                        ui.notifications.warn(`Ungültiger Actor-Typ "${actorType}" für NPC "${npcData.name || 'Unbekannt'}" ignoriert. Verwende stattdessen "npc".`);
+                        npcData.type = "npc"; // Fallback auf gültigen Typ
                     }
 
                     const actor = await Actor.create({
                         name: npcData.name || "Unbekannter NPC",
                         type: actorType,
-                        img: "icons/svg/mystery-man.svg", // Standard-Icon
-                        system: { // Daten für den Actor (für D&D5e ist dies 'system')
+                        img: "icons/svg/mystery-man.svg", // Standard-Icon für den Actor
+                        system: { // Die system-spezifischen Daten für D&D5e
                             details: {
                                 biography: {
-                                    value: npcData.description || ""
+                                    value: npcData.description || "" // Beschreibung als Biografie
                                 }
                             }
-                            // Füge hier weitere standardmäßige NPC-Attribute hinzu, die du möchtest
-                            // z.B. attributes.hp.value: 10, attributes.ac.value: 10, etc.
+                            // Hier könnten weitere standardmäßige D&D5e NPC-Attribute hinzugefügt werden
                         }
                     });
 
@@ -213,13 +229,13 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                         const validItemTypes = game.system.documentTypes.Item; // Gültige Item-Typen des Systems
 
                         for (const item of npcData.items) {
-                            // Prüfe, ob der Item-Typ gültig ist
+                            // Prüfe, ob der Item-Typ gültig ist, bevor das Item erstellt wird
                             if (validItemTypes.includes(item.type)) {
                                 itemsToCreate.push({
                                     name: item.name || "Unbenanntes Item",
                                     type: item.type,
-                                    img: `icons/svg/${item.type}.svg`, // Versucht ein passendes Icon
-                                    system: item.system || {} // Wichtig: 'system' statt 'data' für D&D5e
+                                    img: `icons/svg/${item.type}.svg`, // Versucht ein passendes Standard-Icon
+                                    system: item.system || {} // Wichtig: 'system' für D&D5e Item-Daten
                                 });
                             } else {
                                 ui.notifications.warn(`Ungültiger Item-Typ "${item.type}" für "${item.name}" bei NPC "${npcData.name}" ignoriert. Gültige Typen sind: ${validItemTypes.join(', ')}`);
@@ -235,6 +251,7 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                     }
 
                 } catch (creationError) {
+                    // Fehlerbehandlung bei der Erstellung von Foundry VTT Dokumenten
                     ui.notifications.error(`Fehler beim Erstellen von NPC oder Items für "${npcData.name || 'Unbekannt'}": ${creationError.message}`);
                     console.error(`Error during NPC/Item creation for ${npcData.name || 'Unknown'}:`, creationError);
                 }
@@ -244,21 +261,24 @@ The response MUST be a valid JSON array containing only the generated NPCs.
             this.close(); // Schließt den Dialog nach erfolgreicher Erstellung
 
         } catch (error) {
+            // Allgemeine Fehlerbehandlung für den API-Aufruf
             ui.notifications.error(`Fehler während des API-Aufrufs: ${error.message}`);
             console.error("API Error:", error);
         }
     }
 }
 
-// --- Hooks für Foundry VTT Einstellungen und Buttonplatzierung ---
+// --- Foundry VTT Hooks für Einstellungen und Benutzeroberflächen-Integration ---
+
+// Wird während der Initialisierung von Foundry VTT ausgeführt. Registriert die Moduleinstellungen.
 Hooks.on("init", () => {
     game.settings.register("npc-generator-gpt", "openaiApiKey", {
         name: "OpenAI API Schlüssel",
         hint: "Dein OpenAI API-Schlüssel (z.B. sk-XXXXXXXXXXXX). Kann hier generiert werden: platform.openai.com/account/api-keys",
-        scope: "world",
-        config: true,
-        type: String,
-        default: ""
+        scope: "world", // Diese Einstellung ist Welt-spezifisch
+        config: true, // Erscheint in den Foundry VTT Einstellungen
+        type: String, // Datentyp der Einstellung
+        default: "" // Standardwert
     });
 
     game.settings.register("npc-generator-gpt", "openaiModel", {
@@ -267,55 +287,61 @@ Hooks.on("init", () => {
         scope: "world",
         config: true,
         type: String,
-        choices: {
+        choices: { // Dropdown-Auswahl für Modelle
             "gpt-4o": "GPT-4o (Empfohlen)",
             "gpt-4-turbo": "GPT-4 Turbo",
             "gpt-3.5-turbo": "GPT-3.5 Turbo",
             // Füge hier weitere Modelle hinzu, die du unterstützen möchtest
         },
-        default: "gpt-4o"
+        default: "gpt-4o" // Standardmodell
     });
 });
 
-// Platziert den Button direkt im Actors Directory
+// Platziert den Button direkt im Actors Directory (Charakter-/NPC-Verzeichnis)
 Hooks.on("renderActorDirectory", (app, html, data) => {
-    // Finde den Bereich, wo der "Create Actor" Button ist
+    // Versucht, den standardmäßigen "Create Actor"-Button zu finden.
+    // Dies ist der bevorzugte Ankerpunkt für die Platzierung.
     const createActorButton = html.find('button[data-action="create"]');
+
     if (createActorButton.length > 0) {
-        // Füge unseren Button direkt vor dem "Create Actor" Button ein
+        // Erstellt den HTML-String für unseren Button
         const npcGeneratorButton = $(`
             <button class="npc-generator-button" type="button" title="Generate NPCs with ChatGPT">
                 <i class="fas fa-robot"></i> ChatGPT NPCs
             </button>
         `);
+        // Fügt unseren Button direkt vor dem "Create Actor"-Button ein
         createActorButton.before(npcGeneratorButton);
 
-        // Füge den Event Listener hinzu
+        // Fügt den Event Listener hinzu, um den Dialog zu öffnen, wenn der Button geklickt wird
         npcGeneratorButton.click(() => {
             new NPCGeneratorDialog().render(true);
         });
     } else {
-        // Fallback, falls der Button nicht gefunden wird (z.B. bei Änderungen in Foundry VTT)
-        // Füge ihn stattdessen am Ende des Headers hinzu
+        // Fallback: Wenn der "Create Actor"-Button nicht gefunden wird (z.B. wegen UI-Änderungen in Foundry VTT
+        // oder durch andere Module), versuchen wir, den Button am Ende des Directory-Headers zu platzieren.
         const directoryHeader = html.find('.directory-header');
         if (directoryHeader.length > 0) {
-             const npcGeneratorButton = $(`
+            const npcGeneratorButton = $(`
                 <button class="npc-generator-button" type="button" title="Generate NPCs with ChatGPT">
                     <i class="fas fa-robot"></i> ChatGPT NPCs
                 </button>
             `);
-            directoryHeader.append(npcGeneratorButton);
+            directoryHeader.append(npcGeneratorButton); // Fügt den Button am Ende des Headers hinzu
             npcGeneratorButton.click(() => {
                 new NPCGeneratorDialog().render(true);
             });
+        } else {
+            // Wenn selbst der Header nicht gefunden wird, logge einen Fehler, um das Problem zu identifizieren.
+            console.error("NPC Generator GPT | Could not find a suitable location to place the button in the Actor Directory.");
         }
     }
 });
 
-
+// Wird ausgeführt, sobald Foundry VTT vollständig geladen und bereit ist.
 Hooks.on("ready", () => {
     console.log("NPC Generator GPT | Ready!");
-    // Überprüfe, ob das D&D5e System aktiv ist, da der Prompt spezifisch dafür ist.
+    // Zeigt eine Warnung an, wenn das Modul nicht mit dem D&D5e-System verwendet wird.
     if (game.system.id !== "dnd5e") {
         ui.notifications.warn("NPC Generator GPT Modul ist für das D&D5e System optimiert. Es kann bei anderen Systemen zu unerwartetem Verhalten oder Fehlern kommen.");
     }
