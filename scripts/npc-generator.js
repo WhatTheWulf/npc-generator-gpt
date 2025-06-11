@@ -270,7 +270,6 @@ The response MUST be a valid JSON array containing only the generated NPCs.
 }
 
 ---
-
 ### Foundry VTT Hooks für Einstellungen und Benutzeroberflächen-Integration
 
 // Wird während der Initialisierung von Foundry VTT ausgeführt. Registriert die Moduleinstellungen.
