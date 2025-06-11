@@ -30,6 +30,7 @@ class NPCGeneratorDialog extends FormApplication {
     activateListeners(html) {
         super.activateListeners(html);
         // Listener für den "NPC generieren"-Button
+        // Da 'html' hier bereits ein jQuery-Objekt ist (durch FormApplication), ist $(html) nicht nötig.
         html.find(".generate-button").click(this._onClickGenerate.bind(this));
         // Listener für den "OpenAI Schlüssel einstellen"-Button
         html.find(".openai-key-button").click(this._onClickOpenAIKeySettings.bind(this));
@@ -80,7 +81,7 @@ class NPCGeneratorDialog extends FormApplication {
         }
 
         // --- Feste Vorlage für ChatGPT mit D&D5e spezifischen Feldern ---
-        // Diese Vorlage stellt sicher, dass ChatGPT die benötigten Daten im korrekten JSON-Format liefert.
+        // Diese Vorlage stellt sicher, dass ChatGPT die benötigten Daten im korrekten JSON-Format liegert.
         // Beachtet, dass Item-Daten in D&D5e unter 'system' statt 'data' liegen.
         // Listet alle gültigen Item-Typen des aktuellen D&D5e Systems auf.
         const dnd5eItemTypes = game.system.documentTypes.Item.join(', ');
@@ -268,7 +269,9 @@ The response MUST be a valid JSON array containing only the generated NPCs.
     }
 }
 
-// --- Foundry VTT Hooks für Einstellungen und Benutzeroberflächen-Integration ---
+---
+
+### Foundry VTT Hooks für Einstellungen und Benutzeroberflächen-Integration
 
 // Wird während der Initialisierung von Foundry VTT ausgeführt. Registriert die Moduleinstellungen.
 Hooks.on("init", () => {
@@ -297,31 +300,34 @@ Hooks.on("init", () => {
     });
 });
 
-// Platziert den Button direkt im Actors Directory (Charakter-/NPC-Verzeichnis)
 Hooks.on("renderActorDirectory", (app, html, data) => {
-    // Erstellt den HTML-String für unseren Button
+    // Stellen Sie sicher, dass 'html' ein jQuery-Objekt ist,
+    // da Foundry VTT v13 jetzt native DOM-Elemente übergibt.
+    const jQ_html = $(html);
+
+    // Erstelle den Button
     const npcGeneratorButton = $(`
-        <button class="npc-generator-button" type="button" title="Generate NPCs with ChatGPT">
+        <button type="button" class="create-chatgpt-npc-button" data-action="createChatGPTNpc">
             <i class="fas fa-robot"></i> ChatGPT NPCs
         </button>
     `);
 
     // Versuche, den Standardplatz zu nutzen:
     // Sucht zuerst nach dem neuen data-action="createEntry" und dann nach dem älteren "create".
-    const createActorButton = html.find('button[data-action="createEntry"], button[data-action="create"]');
+    const createActorButton = jQ_html.find('button[data-action="createEntry"], button[data-action="create"]');
     if (createActorButton.length > 0) {
         // Fügt unseren Button direkt vor dem gefundenen "Create Actor"-Button ein
         createActorButton.before(npcGeneratorButton);
     } else {
         // Alternativer Platzierungspfad, falls der "Create Actor" Button nicht gefunden wird.
         // Versuche, den Button am Ende des '.directory-header' zu platzieren.
-        const directoryHeader = html.find('.directory-header');
+        const directoryHeader = jQ_html.find('.directory-header');
         if (directoryHeader.length > 0) {
             directoryHeader.append(npcGeneratorButton); // Fügt den Button am Ende des Headers hinzu
         } else {
             // Als absolute Fallback-Maßnahme: Versuche, den Button direkt am Anfang der .directory-list zu platzieren.
             // Dies ist ein eher unwahrscheinlicher, aber robuster Fallback für extreme UI-Änderungen.
-            html.find('.directory-list').prepend(npcGeneratorButton);
+            jQ_html.find('.directory-list').prepend(npcGeneratorButton);
             console.warn("NPC Generator GPT | Placed button in '.directory-list' as no better location found.");
         }
     }
