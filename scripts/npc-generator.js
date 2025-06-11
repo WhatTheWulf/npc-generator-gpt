@@ -300,8 +300,8 @@ Hooks.on("init", () => {
 // Platziert den Button direkt im Actors Directory (Charakter-/NPC-Verzeichnis)
 Hooks.on("renderActorDirectory", (app, html, data) => {
     // Versucht, den standardmäßigen "Create Actor"-Button zu finden.
-    // Dies ist der bevorzugte Ankerpunkt für die Platzierung.
-    const createActorButton = html.find('button[data-action="create"]');
+    // ACHTUNG: 'data-action' wurde in Foundry VTT 13 (oder früher) von "create" zu "createEntry" geändert.
+    const createActorButton = html.find('button[data-action="createEntry"]');
 
     if (createActorButton.length > 0) {
         // Erstellt den HTML-String für unseren Button
@@ -318,8 +318,8 @@ Hooks.on("renderActorDirectory", (app, html, data) => {
             new NPCGeneratorDialog().render(true);
         });
     } else {
-        // Fallback: Wenn der "Create Actor"-Button nicht gefunden wird (z.B. wegen UI-Änderungen in Foundry VTT
-        // oder durch andere Module), versuchen wir, den Button am Ende des Directory-Headers zu platzieren.
+        // Fallback: Wenn der "Create Actor"-Button nicht gefunden wird,
+        // versuchen wir, den Button am Ende des Directory-Headers zu platzieren.
         const directoryHeader = html.find('.directory-header');
         if (directoryHeader.length > 0) {
             const npcGeneratorButton = $(`
@@ -333,7 +333,7 @@ Hooks.on("renderActorDirectory", (app, html, data) => {
             });
         } else {
             // Wenn selbst der Header nicht gefunden wird, logge einen Fehler, um das Problem zu identifizieren.
-            console.error("NPC Generator GPT | Could not find a suitable location to place the button in the Actor Directory.");
+            console.error("NPC Generator GPT | Could not find a suitable location to place the button in the Actor Directory. Neither 'data-action=createEntry' button nor '.directory-header' found.");
         }
     }
 });
