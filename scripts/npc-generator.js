@@ -299,43 +299,38 @@ Hooks.on("init", () => {
 
 // Platziert den Button direkt im Actors Directory (Charakter-/NPC-Verzeichnis)
 Hooks.on("renderActorDirectory", (app, html, data) => {
-    // Versucht, den standardmäßigen "Create Actor"-Button zu finden.
-    // ACHTUNG: 'data-action' wurde in Foundry VTT 13 (oder früher) von "create" zu "createEntry" geändert.
-    const createActorButton = html.find('button[data-action="createEntry"]');
+    // Erstellt den HTML-String für unseren Button
+    const npcGeneratorButton = $(`
+        <button class="npc-generator-button" type="button" title="Generate NPCs with ChatGPT">
+            <i class="fas fa-robot"></i> ChatGPT NPCs
+        </button>
+    `);
 
+    // Versuche, den Standardplatz zu nutzen:
+    // Sucht zuerst nach dem neuen data-action="createEntry" und dann nach dem älteren "create".
+    const createActorButton = html.find('button[data-action="createEntry"], button[data-action="create"]');
     if (createActorButton.length > 0) {
-        // Erstellt den HTML-String für unseren Button
-        const npcGeneratorButton = $(`
-            <button class="npc-generator-button" type="button" title="Generate NPCs with ChatGPT">
-                <i class="fas fa-robot"></i> ChatGPT NPCs
-            </button>
-        `);
-        // Fügt unseren Button direkt vor dem "Create Actor"-Button ein
+        // Fügt unseren Button direkt vor dem gefundenen "Create Actor"-Button ein
         createActorButton.before(npcGeneratorButton);
-
-        // Fügt den Event Listener hinzu, um den Dialog zu öffnen, wenn der Button geklickt wird
-        npcGeneratorButton.click(() => {
-            new NPCGeneratorDialog().render(true);
-        });
     } else {
-        // Fallback: Wenn der "Create Actor"-Button nicht gefunden wird,
-        // versuchen wir, den Button am Ende des Directory-Headers zu platzieren.
+        // Alternativer Platzierungspfad, falls der "Create Actor" Button nicht gefunden wird.
+        // Versuche, den Button am Ende des '.directory-header' zu platzieren.
         const directoryHeader = html.find('.directory-header');
         if (directoryHeader.length > 0) {
-            const npcGeneratorButton = $(`
-                <button class="npc-generator-button" type="button" title="Generate NPCs with ChatGPT">
-                    <i class="fas fa-robot"></i> ChatGPT NPCs
-                </button>
-            `);
             directoryHeader.append(npcGeneratorButton); // Fügt den Button am Ende des Headers hinzu
-            npcGeneratorButton.click(() => {
-                new NPCGeneratorDialog().render(true);
-            });
         } else {
-            // Wenn selbst der Header nicht gefunden wird, logge einen Fehler, um das Problem zu identifizieren.
-            console.error("NPC Generator GPT | Could not find a suitable location to place the button in the Actor Directory. Neither 'data-action=createEntry' button nor '.directory-header' found.");
+            // Als absolute Fallback-Maßnahme: Versuche, den Button direkt am Anfang der .directory-list zu platzieren.
+            // Dies ist ein eher unwahrscheinlicher, aber robuster Fallback für extreme UI-Änderungen.
+            html.find('.directory-list').prepend(npcGeneratorButton);
+            console.warn("NPC Generator GPT | Placed button in '.directory-list' as no better location found.");
         }
     }
+
+    // Fügt den Event Listener hinzu, um den Dialog zu öffnen, wenn der Button geklickt wird.
+    // .on("click") ist oft robuster für dynamisch eingefügte Elemente als .click().
+    npcGeneratorButton.on("click", () => {
+        new NPCGeneratorDialog().render(true);
+    });
 });
 
 // Wird ausgeführt, sobald Foundry VTT vollständig geladen und bereit ist.
