@@ -19,7 +19,7 @@ function getValidActorTypes() {
 class NPCGeneratorDialog extends FormApplication {
     static get defaultOptions() {
         // Standardoptionen für das FormApplication-Fenster
-        return mergeObject(super.defaultOptions, {
+        return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["form", "npc-generator"], // CSS-Klassen für Styling
             // Der Pfad zum HTML-Template. 'modules/MODUL-ID/pfad/zur/datei.html'
             // Die Modul-ID ist 'npc-generator-gpt', daher ist der Pfad korrekt.
