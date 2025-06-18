@@ -2,6 +2,20 @@
 // Dieses Skript ermöglicht die Generierung von D&D5e NPCs und ihren Items über ChatGPT
 // Es integriert sich als Button im Actors Directory von Foundry VTT.
 
+function getValidItemTypes() {
+    let itemTypes = game.system?.documentTypes?.Item;
+    if (!Array.isArray(itemTypes)) itemTypes = game.documentTypes?.Item;
+    if (!Array.isArray(itemTypes)) itemTypes = Object.keys(CONFIG.Item.typeLabels || {});
+    return Array.isArray(itemTypes) ? itemTypes : [];
+}
+
+function getValidActorTypes() {
+    let actorTypes = game.system?.documentTypes?.Actor;
+    if (!Array.isArray(actorTypes)) actorTypes = game.documentTypes?.Actor;
+    if (!Array.isArray(actorTypes)) actorTypes = Object.keys(CONFIG.Actor.typeLabels || {});
+    return Array.isArray(actorTypes) ? actorTypes : [];
+}
+
 class NPCGeneratorDialog extends FormApplication {
     static get defaultOptions() {
         // Standardoptionen für das FormApplication-Fenster
@@ -84,7 +98,7 @@ class NPCGeneratorDialog extends FormApplication {
         // Diese Vorlage stellt sicher, dass ChatGPT die benötigten Daten im korrekten JSON-Format liegert.
         // Beachtet, dass Item-Daten in D&D5e unter 'system' statt 'data' liegen.
         // Listet alle gültigen Item-Typen des aktuellen D&D5e Systems auf.
-        const dnd5eItemTypes = game.system.documentTypes.Item.join(', ');
+        const dnd5eItemTypes = getValidItemTypes().join(', ');
 
         const basePrompt = `
 Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following structure:
@@ -202,7 +216,7 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                     // 1. Actor (NPC) erstellen
                     const actorType = npcData.type || "npc"; // Standardtyp "npc" für D&D5e
                     // Validierung des Actor-Typs gegen die System-definierten Typen
-                    if (!game.system.documentTypes.Actor.includes(actorType)) {
+                    if (!getValidActorTypes().includes(actorType)) {
                         ui.notifications.warn(`Ungültiger Actor-Typ "${actorType}" für NPC "${npcData.name || 'Unbekannt'}" ignoriert. Verwende stattdessen "npc".`);
                         npcData.type = "npc"; // Fallback auf gültigen Typ
                     }
@@ -227,7 +241,7 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                     // 2. Items erstellen und zum Actor hinzufügen
                     if (npcData.items && Array.isArray(npcData.items)) {
                         const itemsToCreate = [];
-                        const validItemTypes = game.system.documentTypes.Item; // Gültige Item-Typen des Systems
+                        const validItemTypes = getValidItemTypes(); // Gültige Item-Typen des Systems
 
                         for (const item of npcData.items) {
                             // Prüfe, ob der Item-Typ gültig ist, bevor das Item erstellt wird
