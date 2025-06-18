@@ -220,7 +220,8 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                     // 1. Actor (NPC) erstellen
                     const actorType = npcData.type || "npc"; // Standardtyp "npc" für D&D5e
                     // Validierung des Actor-Typs gegen die System-definierten Typen
-                    if (!game.system.documentTypes.Actor.includes(actorType)) {
+                    const validActorTypes = getValidActorTypes();
+                    if (!validActorTypes.includes(actorType)) {
                         ui.notifications.warn(`Ungültiger Actor-Typ "${actorType}" für NPC "${npcData.name || 'Unbekannt'}" ignoriert. Verwende stattdessen "npc".`);
                         npcData.type = "npc"; // Fallback auf gültigen Typ
                     }
