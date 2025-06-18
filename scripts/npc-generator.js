@@ -16,6 +16,27 @@ function getValidActorTypes() {
     return Array.isArray(actorTypes) ? actorTypes : [];
 }
 
+const skillMap = {
+    acrobatics: "acr",
+    animalHandling: "ani",
+    arcana: "arc",
+    athletics: "ath",
+    deception: "dec",
+    history: "his",
+    insight: "ins",
+    intimidation: "itm",
+    investigation: "inv",
+    medicine: "med",
+    nature: "nat",
+    perception: "prc",
+    performance: "prf",
+    persuasion: "per",
+    religion: "rel",
+    sleightOfHand: "slt",
+    stealth: "ste",
+    survival: "sur"
+};
+
 class NPCGeneratorDialog extends FormApplication {
     static get defaultOptions() {
         // Standardoptionen für das FormApplication-Fenster
@@ -111,6 +132,8 @@ Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following
 - "description": String, a short description of the NPC.
 - "abilities": { "str": Number, "dex": Number, "con": Number, "int": Number, "wis": Number, "cha": Number }.
 - "hp": Number representing the NPC's hit points.
+- "savingThrows": { "str": Boolean, "dex": Boolean, "con": Boolean, "int": Boolean, "wis": Boolean, "cha": Boolean } where true means the NPC is proficient in that saving throw.
+- "skills": { "acrobatics": Number, "animalHandling": Number, "arcana": Number, "athletics": Number, "deception": Number, "history": Number, "insight": Number, "intimidation": Number, "investigation": Number, "medicine": Number, "nature": Number, "perception": Number, "performance": Number, "persuasion": Number, "religion": Number, "sleightOfHand": Number, "stealth": Number, "survival": Number } with 0 for no proficiency, 1 for proficiency and 2 for expertise.
 - "items": Array of Item objects.
 
 Each Item object in the "items" array must have the following structure:
@@ -228,18 +251,33 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                         npcData.type = "npc"; // Fallback auf gültigen Typ
                     }
 
-                    const actor = await Actor.create({
+                    const abilityData = {
+                        str: { value: npcData.abilities?.str || 10 },
+                        dex: { value: npcData.abilities?.dex || 10 },
+                        con: { value: npcData.abilities?.con || 10 },
+                        int: { value: npcData.abilities?.int || 10 },
+                        wis: { value: npcData.abilities?.wis || 10 },
+                        cha: { value: npcData.abilities?.cha || 10 }
+                    };
+
+                    const savingData = npcData.savingThrows || {};
+                    for (const [ability, prof] of Object.entries(savingData)) {
+                        if (abilityData[ability]) abilityData[ability].proficient = prof ? 1 : 0;
+                    }
+
+                    const skills = {};
+                    if (npcData.skills) {
+                        for (const [skillName, value] of Object.entries(npcData.skills)) {
+                            const key = skillMap[skillName];
+                            if (key) skills[key] = { value };
+                        }
+                    }
+
+                    const actorData = {
                         name: npcData.name || "Unbekannter NPC",
                         type: actorType,
                         system: {
-                            abilities: {
-                                str: { value: npcData.abilities?.str || 10 },
-                                dex: { value: npcData.abilities?.dex || 10 },
-                                con: { value: npcData.abilities?.con || 10 },
-                                int: { value: npcData.abilities?.int || 10 },
-                                wis: { value: npcData.abilities?.wis || 10 },
-                                cha: { value: npcData.abilities?.cha || 10 }
-                            },
+                            abilities: abilityData,
                             attributes: {
                                 hp: {
                                     value: npcData.hp || 1,
@@ -250,9 +288,12 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                                 biography: {
                                     value: npcData.description || ""
                                 }
-                            }
+                            },
+                            skills
                         }
-                    });
+                    };
+
+                    const actor = await Actor.create(actorData);
 
                     ui.notifications.info(`NPC "${actor.name}" erfolgreich erstellt.`);
                     console.log(`Created Actor: ${actor.name}`, actor);
