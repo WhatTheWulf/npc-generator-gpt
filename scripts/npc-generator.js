@@ -98,7 +98,11 @@ class NPCGeneratorDialog extends FormApplication {
         // Diese Vorlage stellt sicher, dass ChatGPT die benötigten Daten im korrekten JSON-Format liegert.
         // Beachtet, dass Item-Daten in D&D5e unter 'system' statt 'data' liegen.
         // Listet alle gültigen Item-Typen des aktuellen D&D5e Systems auf.
-        const dnd5eItemTypes = game.system.documentTypes.Item.join(', ');
+        // Verwende die Hilfsfunktion, um eine valide Liste aller Item-Typen
+        // des aktuellen Systems zu erhalten. Damit stellen wir sicher, dass
+        // immer ein Array vorliegt, selbst wenn das System die Informationen
+        // anders bereitstellt.
+        const dnd5eItemTypes = getValidItemTypes().join(', ');
 
         const basePrompt = `
 Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following structure:
