@@ -54,17 +54,17 @@ class NPCGeneratorDialog extends FormApplication {
     async _onClickGenerate(event) {
         event.preventDefault();
         const formData = new FormData(this.form); // Erfasst Formulardaten
-        const numNpcs = parseInt(formData.get("numNpcs")); // Anzahl der zu generierenden NPCs␊
-        const userPromptText = formData.get("prompt").trim(); // Benutzerdefinierter Prompt␊
-        const customModel = formData.get("customModel"); // Benutzerdefiniertes OpenAI-Modell␊
-        const temperature = parseFloat(formData.get("temperature")); // Kreativität des Modells␊
-        const topP = parseFloat(formData.get("topP")); // Diversität der Antworten␊
-␊
+        const numNpcs = parseInt(formData.get("numNpcs")); // Anzahl der zu generierenden NPCs
+        const userPromptText = formData.get("prompt").trim(); // Benutzerdefinierter Prompt
+        const customModel = formData.get("customModel"); // Benutzerdefiniertes OpenAI-Modell
+        const temperature = parseFloat(formData.get("temperature")); // Kreativität des Modells
+        const topP = parseFloat(formData.get("topP")); // Diversität der Antworten
+
         // Validierung der Eingabe für die Anzahl der NPCs␊
         if (isNaN(numNpcs) || numNpcs <= 0) {
-            ui.notifications.error("Die Anzahl der NPCs muss größer als 0 sein.");␊
-            return;␊
-        }␊
+            ui.notifications.error("Die Anzahl der NPCs muss größer als 0 sein.");
+            return;
+        }
 
         // Überprüfung des OpenAI API Schlüssels
         const apiKey = game.settings.get("npc-generator-gpt", "openaiApiKey");
