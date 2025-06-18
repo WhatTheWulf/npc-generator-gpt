@@ -279,12 +279,12 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                         biography: {
                             value: npcData.description || ""
                         },
-                        background: npcData.background || ""
+                        background: { value: npcData.background || "" }
                     };
                     if (actorType === "npc") {
                         details.type = { value: npcData.species || "" };
                     } else {
-                        details.race = npcData.species || "";
+                        details.race = { value: npcData.species || "" };
                     }
 
                     const actorData = {
