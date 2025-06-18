@@ -306,10 +306,10 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                     };
                     if (actorType === "npc") {
                         details.type = { value: npcData.species || "" };
-                        details.cr = { value: cr };
+                        details.cr = cr;
                     } else {
                         details.race = { value: npcData.species || "" };
-                        details.cr = { value: cr };
+                        details.cr = cr;
                     }
 
                     const actorData = {
@@ -330,8 +330,12 @@ The response MUST be a valid JSON array containing only the generated NPCs.
 
                     const actor = await Actor.create(actorData);
 
-                    ui.notifications.info(`NPC "${actor.name}" erfolgreich erstellt.`);
-                    console.log(`Created Actor: ${actor.name}`, actor);
+                    if (actor) {
+                        ui.notifications.info(`NPC "${actor.name}" erfolgreich erstellt.`);
+                        console.log(`Created Actor: ${actor.name}`, actor);
+                    } else {
+                        throw new Error("Actor creation failed");
+                    }
 
                     // 2. Items erstellen und zum Actor hinzufügen
                     if (npcData.items && Array.isArray(npcData.items)) {
