@@ -229,7 +229,6 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                     const actor = await Actor.create({
                         name: npcData.name || "Unbekannter NPC",
                         type: actorType,
-                        img: "icons/svg/mystery-man.svg", // Standard-Icon für den Actor
                         system: { // Die system-spezifischen Daten für D&D5e
                             details: {
                                 biography: {
@@ -254,7 +253,6 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                                 itemsToCreate.push({
                                     name: item.name || "Unbenanntes Item",
                                     type: item.type,
-                                    img: `icons/svg/${item.type}.svg`, // Versucht ein passendes Standard-Icon
                                     system: item.system || {} // Wichtig: 'system' für D&D5e Item-Daten
                                 });
                             } else {
