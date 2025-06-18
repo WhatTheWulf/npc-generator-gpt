@@ -134,6 +134,7 @@ Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following
 - "background": String describing the NPC's background.
 - "abilities": { "str": Number, "dex": Number, "con": Number, "int": Number, "wis": Number, "cha": Number }.
 - "hp": Number representing the NPC's hit points.
+- "cr": Number representing the NPC's challenge rating.
 - "savingThrows": { "str": Boolean, "dex": Boolean, "con": Boolean, "int": Boolean, "wis": Boolean, "cha": Boolean } where true means the NPC is proficient in that saving throw.
 - "skills": { "acrobatics": Number, "animalHandling": Number, "arcana": Number, "athletics": Number, "deception": Number, "history": Number, "insight": Number, "intimidation": Number, "investigation": Number, "medicine": Number, "nature": Number, "perception": Number, "performance": Number, "persuasion": Number, "religion": Number, "sleightOfHand": Number, "stealth": Number, "survival": Number } with 0 for no proficiency, 1 for proficiency and 2 for expertise.
 - "items": Array of Item objects.
@@ -275,6 +276,8 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                         }
                     }
 
+                    const cr = npcData.cr ?? Math.floor(Math.random() * 20) + 1;
+
                     const details = {
                         biography: {
                             value: npcData.description || ""
@@ -283,8 +286,10 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                     };
                     if (actorType === "npc") {
                         details.type = { value: npcData.species || "" };
+                        details.cr = { value: cr };
                     } else {
                         details.race = { value: npcData.species || "" };
+                        details.cr = { value: cr };
                     }
 
                     const actorData = {
