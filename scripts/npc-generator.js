@@ -74,7 +74,7 @@ class NPCGeneratorDialog extends FormApplication {
         const temperature = parseFloat(formData.get("temperature")); // Kreativität des Modells
         const topP = parseFloat(formData.get("topP")); // Diversität der Antworten
 
-        // Validierung der Eingabe für die Anzahl der NPCs␊
+        // Validierung der Eingabe für die Anzahl der NPCs
         if (isNaN(numNpcs) || numNpcs <= 0) {
             ui.notifications.error("Die Anzahl der NPCs muss größer als 0 sein.");
             return;
@@ -245,7 +245,7 @@ The response MUST be a valid JSON array containing only the generated NPCs.
 
                     // 2. Items erstellen und zum Actor hinzufügen
                     if (npcData.items && Array.isArray(npcData.items)) {
-                        const itemsToCreate = [];␊
+                        const itemsToCreate = [];
                         const validItemTypes = getValidItemTypes(); // Gültige Item-Typen des Systems
 
                         for (const item of npcData.items) {
