@@ -130,6 +130,8 @@ Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following
 - "name": String, the NPC's name.
 - "type": String, the NPC type (for D&D5e usually "npc" or "character").
 - "description": String, a short description of the NPC.
+- "species": String representing the NPC's species.
+- "background": String describing the NPC's background.
 - "abilities": { "str": Number, "dex": Number, "con": Number, "int": Number, "wis": Number, "cha": Number }.
 - "hp": Number representing the NPC's hit points.
 - "savingThrows": { "str": Boolean, "dex": Boolean, "con": Boolean, "int": Boolean, "wis": Boolean, "cha": Boolean } where true means the NPC is proficient in that saving throw.
@@ -273,6 +275,18 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                         }
                     }
 
+                    const details = {
+                        biography: {
+                            value: npcData.description || ""
+                        },
+                        background: npcData.background || ""
+                    };
+                    if (actorType === "npc") {
+                        details.type = { value: npcData.species || "" };
+                    } else {
+                        details.race = npcData.species || "";
+                    }
+
                     const actorData = {
                         name: npcData.name || "Unbekannter NPC",
                         type: actorType,
@@ -284,11 +298,7 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                                     max: npcData.hp || 1
                                 }
                             },
-                            details: {
-                                biography: {
-                                    value: npcData.description || ""
-                                }
-                            },
+                            details,
                             skills
                         }
                     };
