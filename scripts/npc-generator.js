@@ -276,7 +276,27 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                         }
                     }
 
-                    const cr = npcData.cr ?? Math.floor(Math.random() * 20) + 1;
+                    // Challenge Rating muss eine gültige Zahl sein. Wandelt
+                    // Strings wie "1/2" oder "0.5" sicher in eine Zahl um.
+                    function parseCR(value) {
+                        if (typeof value === "number" && isFinite(value)) return value;
+                        if (typeof value === "string") {
+                            const trimmed = value.trim();
+                            // Unterstützt Bruchangaben wie "1/2" oder Dezimalzahlen
+                            if (trimmed.includes("/")) {
+                                const [num, denom] = trimmed.split("/").map(Number);
+                                if (!isNaN(num) && !isNaN(denom) && denom !== 0) {
+                                    return num / denom;
+                                }
+                            }
+                            const parsed = parseFloat(trimmed);
+                            if (!isNaN(parsed)) return parsed;
+                        }
+                        return null;
+                    }
+
+                    let cr = parseCR(npcData.cr);
+                    if (!isFinite(cr)) cr = Math.floor(Math.random() * 20) + 1;
 
                     const details = {
                         biography: {
@@ -319,16 +339,18 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                         const validItemTypes = getValidItemTypes(); // Gültige Item-Typen des Systems
 
                         for (const item of npcData.items) {
-                            // Prüfe, ob der Item-Typ gültig ist, bevor das Item erstellt wird
-                            if (validItemTypes.includes(item.type)) {
+                            // Stelle sicher, dass ein valides Objekt vorliegt
+                            if (item && typeof item === "object" && validItemTypes.includes(item.type)) {
                                 itemsToCreate.push({
                                     name: item.name || "Unbenanntes Item",
                                     type: item.type,
                                     system: item.system || {} // Wichtig: 'system' für D&D5e Item-Daten
                                 });
                             } else {
-                                ui.notifications.warn(`Ungültiger Item-Typ "${item.type}" für "${item.name}" bei NPC "${npcData.name}" ignoriert. Gültige Typen sind: ${validItemTypes.join(', ')}`);
-                                console.warn(`Invalid item type "${item.type}" for "${item.name}" of NPC "${npcData.name}". Skipped.`);
+                                const type = item?.type || "unbekannt";
+                                const name = item?.name || "Unbenanntes Item";
+                                ui.notifications.warn(`Ungültiger Item-Typ "${type}" für "${name}" bei NPC "${npcData.name}" ignoriert. Gültige Typen sind: ${validItemTypes.join(', ')}`);
+                                console.warn(`Invalid item type "${type}" for "${name}" of NPC "${npcData.name}". Skipped.`);
                             }
                         }
 
