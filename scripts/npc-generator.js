@@ -109,6 +109,8 @@ Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following
 - "name": String, the NPC's name.
 - "type": String, the NPC type (for D&D5e usually "npc" or "character").
 - "description": String, a short description of the NPC.
+- "abilities": { "str": Number, "dex": Number, "con": Number, "int": Number, "wis": Number, "cha": Number }.
+- "hp": Number representing the NPC's hit points.
 - "items": Array of Item objects.
 
 Each Item object in the "items" array must have the following structure:
@@ -229,13 +231,26 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                     const actor = await Actor.create({
                         name: npcData.name || "Unbekannter NPC",
                         type: actorType,
-                        system: { // Die system-spezifischen Daten für D&D5e
+                        system: {
+                            abilities: {
+                                str: { value: npcData.abilities?.str || 10 },
+                                dex: { value: npcData.abilities?.dex || 10 },
+                                con: { value: npcData.abilities?.con || 10 },
+                                int: { value: npcData.abilities?.int || 10 },
+                                wis: { value: npcData.abilities?.wis || 10 },
+                                cha: { value: npcData.abilities?.cha || 10 }
+                            },
+                            attributes: {
+                                hp: {
+                                    value: npcData.hp || 1,
+                                    max: npcData.hp || 1
+                                }
+                            },
                             details: {
                                 biography: {
-                                    value: npcData.description || "" // Beschreibung als Biografie
+                                    value: npcData.description || ""
                                 }
                             }
-                            // Hier könnten weitere standardmäßige D&D5e NPC-Attribute hinzugefügt werden
                         }
                     });
 
