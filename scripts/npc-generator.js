@@ -245,7 +245,8 @@ The response MUST be a valid JSON array containing only the generated NPCs.
 
                     // 2. Items erstellen und zum Actor hinzufügen
                     if (npcData.items && Array.isArray(npcData.items)) {
-                        const itemsToCreate = [];
+
+                        const itemsToCreate = [];␊
                         const validItemTypes = getValidItemTypes(); // Gültige Item-Typen des Systems
 
                         for (const item of npcData.items) {
