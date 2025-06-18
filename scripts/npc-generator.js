@@ -129,7 +129,7 @@ class NPCGeneratorDialog extends FormApplication {
 Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following structure:
 - "name": String, the NPC's name.
 - "type": String, the NPC type (for D&D5e usually "npc" or "character").
-- "description": String, a short description of the NPC.
+- "description": String, a brief biography of the NPC with at least three sentences.
 - "species": String representing the NPC's species.
 - "background": String describing the NPC's background.
 - "abilities": { "str": Number, "dex": Number, "con": Number, "int": Number, "wis": Number, "cha": Number }.
