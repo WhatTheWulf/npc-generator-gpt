@@ -2,6 +2,20 @@
 // Dieses Skript ermöglicht die Generierung von D&D5e NPCs und ihren Items über ChatGPT
 // Es integriert sich als Button im Actors Directory von Foundry VTT.
 
+function getValidItemTypes() {
+    let itemTypes = game.system?.documentTypes?.Item;
+    if (!Array.isArray(itemTypes)) itemTypes = game.documentTypes?.Item;
+    if (!Array.isArray(itemTypes)) itemTypes = Object.keys(CONFIG.Item.typeLabels || {});
+    return Array.isArray(itemTypes) ? itemTypes : [];
+}
+
+function getValidActorTypes() {
+    let actorTypes = game.system?.documentTypes?.Actor;
+    if (!Array.isArray(actorTypes)) actorTypes = game.documentTypes?.Actor;
+    if (!Array.isArray(actorTypes)) actorTypes = Object.keys(CONFIG.Actor.typeLabels || {});
+    return Array.isArray(actorTypes) ? actorTypes : [];
+}
+
 class NPCGeneratorDialog extends FormApplication {
     static get defaultOptions() {
         // Standardoptionen für das FormApplication-Fenster
