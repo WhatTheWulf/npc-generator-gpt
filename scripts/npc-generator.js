@@ -296,7 +296,7 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                     }
 
                     let cr = parseCR(npcData.cr);
-                    if (!isFinite(cr)) cr = Math.floor(Math.random() * 20) + 1;
+                    if (!Number.isFinite(cr)) cr = Math.floor(Math.random() * 20) + 1;
 
                     const details = {
                         biography: {
