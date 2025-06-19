@@ -190,10 +190,11 @@ For "spell" (include damage.parts for damage-dealing spells):
     "level": 1,
     "school": "abj", // Or evn, nec, etc.
     "components": {"v": true, "s": true, "m": false},
-    "preparation": {"mode": "prepared", "prepared": true}
+  "preparation": {"mode": "prepared", "prepared": true}
   }
 
 Only use official D&D5e spells from the compendium and never invent new spells.
+Spellcasting NPCs (wizards, sorcerers, etc.) must include at least two spells in their items array so that they have multiple options.
 
 The response MUST be a valid JSON array containing only the generated NPCs.
 `;
