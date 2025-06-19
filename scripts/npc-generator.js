@@ -25,6 +25,16 @@ async function findCompendiumSpellByName(spellName) {
     return entry ? await pack.getDocument(entry._id) : null;
 }
 
+async function findCompendiumFeatByName(featName) {
+    for (const pack of game.packs) {
+        if (pack.documentName !== "Item") continue;
+        const index = await pack.getIndex();
+        const entry = index.find(e => e.name?.toLowerCase() === featName.toLowerCase() && e.type === "feat");
+        if (entry) return await pack.getDocument(entry._id);
+    }
+    return null;
+}
+
 const skillMap = {
     acrobatics: "acr",
     animalHandling: "ani",
@@ -146,12 +156,12 @@ Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following
 - "cr": Number representing the NPC's challenge rating.
 - "savingThrows": { "str": Boolean, "dex": Boolean, "con": Boolean, "int": Boolean, "wis": Boolean, "cha": Boolean } where true means the NPC is proficient in that saving throw.
 - "skills": { "acrobatics": Number, "animalHandling": Number, "arcana": Number, "athletics": Number, "deception": Number, "history": Number, "insight": Number, "intimidation": Number, "investigation": Number, "medicine": Number, "nature": Number, "perception": Number, "performance": Number, "persuasion": Number, "religion": Number, "sleightOfHand": Number, "stealth": Number, "survival": Number } with 0 for no proficiency, 1 for proficiency and 2 for expertise.
-- "movementSpeed": "" (leave empty).
+- "movementSpeed": String describing the NPC's typical movement speed (e.g., "30 ft").
 - "languages": "" (leave empty).
 - "habitat": "" (leave empty).
 - "immunities": "" (leave empty).
-- "actions": Array of 1 to 10 official actions from the D&D5e compendium. The number of actions should scale with the NPC's CR.
-- If "cr" is 10 or higher, include "legendaryActions": an array of randomly chosen official legendary actions.
+- "actions": Array of 1 to 10 actions taken directly from the official D&D5e compendium (no homebrew). The number of actions should scale with the NPC's CR.
+- If "cr" is 10 or higher, include "legendaryActions": an array of official legendary actions from the compendium.
 - Spell levels should match the NPC's challenge rating (about CR/2, capped at 9).
 - "items": Array of Item objects.
 
@@ -331,6 +341,11 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                         details.race = { value: npcData.species || "" };
                         details.cr = cr;
                     }
+                    const movement = {};
+                    if (npcData.movementSpeed) {
+                        const speedMatch = String(npcData.movementSpeed).match(/d+/);
+                        if (speedMatch) movement.walk = parseInt(speedMatch[0], 10);
+                    }
 
                     const actorData = {
                         name: npcData.name || "Unbekannter NPC",
@@ -341,7 +356,8 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                                 hp: {
                                     value: npcData.hp || 1,
                                     max: npcData.hp || 1
-                                }
+                                },
+                                movement,
                             },
                             details,
                             skills
@@ -382,6 +398,20 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                                 const name = item?.name || "Unbenanntes Item";
                                 ui.notifications.warn(`Ungültiger Item-Typ "${type}" für "${name}" bei NPC "${npcData.name}" ignoriert. Gültige Typen sind: ${validItemTypes.join(', ')}`);
                                 console.warn(`Invalid item type "${type}" for "${name}" of NPC "${npcData.name}". Skipped.`);
+                            }
+                        }
+                        if (npcData.actions && Array.isArray(npcData.actions)) {
+                            for (const action of npcData.actions) {
+                                const name = typeof action === "string" ? action : action.name;
+                                const feat = await findCompendiumFeatByName(name || "");
+                                if (feat) itemsToCreate.push(feat.toObject());
+                            }
+                        }
+                        if (npcData.legendaryActions && Array.isArray(npcData.legendaryActions)) {
+                            for (const action of npcData.legendaryActions) {
+                                const name = typeof action === "string" ? action : action.name;
+                                const feat = await findCompendiumFeatByName(name || "");
+                                if (feat) itemsToCreate.push(feat.toObject());
                             }
                         }
 
