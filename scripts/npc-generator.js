@@ -56,6 +56,31 @@ const skillMap = {
     survival: "sur"
 };
 
+function showNPCExportDialog(jsonString) {
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const content = `
+        <div>
+            <textarea style="width:100%;height:300px;" readonly>${jsonString}</textarea>
+            <p><a href="${url}" download="generated-npcs.json">JSON herunterladen</a></p>
+            <button type="button" class="copy-json">In Zwischenablage</button>
+        </div>`;
+    const dialog = new Dialog({
+        title: "Generierte NPCs (JSON)",
+        content,
+        buttons: { close: { label: "Schließen" } },
+        render: html => {
+            html.find('.copy-json').click(() => {
+                const ta = html.find('textarea')[0];
+                ta.select();
+                document.execCommand('copy');
+                ui.notifications.info('JSON in Zwischenablage kopiert');
+            });
+        }
+    });
+    dialog.render(true);
+}
+
 class NPCGeneratorDialog extends FormApplication {
     static get defaultOptions() {
         // Standardoptionen für das FormApplication-Fenster
@@ -282,6 +307,7 @@ The response MUST be a valid JSON array containing only the generated NPCs.
             }
 
             // --- DIREKTE ERSTELLUNG VON FOUNDRY VTT DOKUMENTEN ---
+            const exportedActors = [];
             for (const npcData of generatedNpcsData) {
                 try {
                     // 1. Actor (NPC) erstellen
@@ -429,6 +455,8 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                             ui.notifications.info(`Items für "${actor.name}" hinzugefügt.`);
                             console.log(`Created Items for ${actor.name}:`, itemsToCreate);
                         }
+
+                        exportedActors.push(actor.toObject());
                     }
 
                 } catch (creationError) {
@@ -439,6 +467,12 @@ The response MUST be a valid JSON array containing only the generated NPCs.
             }
 
             ui.notifications.info("Alle generierten NPCs wurden erstellt!");
+
+            if (exportedActors.length > 0) {
+                const jsonString = JSON.stringify(exportedActors, null, 2);
+                showNPCExportDialog(jsonString);
+            }
+
             this.close(); // Schließt den Dialog nach erfolgreicher Erstellung
 
         } catch (error) {
