@@ -146,6 +146,12 @@ Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following
 - "cr": Number representing the NPC's challenge rating.
 - "savingThrows": { "str": Boolean, "dex": Boolean, "con": Boolean, "int": Boolean, "wis": Boolean, "cha": Boolean } where true means the NPC is proficient in that saving throw.
 - "skills": { "acrobatics": Number, "animalHandling": Number, "arcana": Number, "athletics": Number, "deception": Number, "history": Number, "insight": Number, "intimidation": Number, "investigation": Number, "medicine": Number, "nature": Number, "perception": Number, "performance": Number, "persuasion": Number, "religion": Number, "sleightOfHand": Number, "stealth": Number, "survival": Number } with 0 for no proficiency, 1 for proficiency and 2 for expertise.
+- "movementSpeed": "" (leave empty).
+- "languages": "" (leave empty).
+- "habitat": "" (leave empty).
+- "immunities": "" (leave empty).
+- "actions": Array of 1 to 10 official actions from the D&D5e compendium. The number of actions should scale with the NPC's CR.
+- If "cr" is 10 or higher, include "legendaryActions": an array of randomly chosen official legendary actions.
 - "items": Array of Item objects.
 
 Each Item object in the "items" array must have the following structure:
