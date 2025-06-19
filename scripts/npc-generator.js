@@ -147,7 +147,8 @@ class NPCGeneratorDialog extends FormApplication {
         const dnd5eItemTypes = getValidItemTypes().join(', ');
 
         const basePrompt = `
-Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following structure:
+Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following structure.
+The NPC's overall power should scale with its challenge rating: higher CR means stronger spells, better actions, improved items and legendary actions when appropriate.
 - "name": String, the NPC's name.
 - "type": String, the NPC type (for D&D5e usually "npc" or "character").
 - "description": String, a brief biography of the NPC with at least three sentences.
