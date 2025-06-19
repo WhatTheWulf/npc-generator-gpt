@@ -149,6 +149,11 @@ class NPCGeneratorDialog extends FormApplication {
         const basePrompt = `
 Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following structure.
 The NPC's overall power should scale with its challenge rating: higher CR means stronger spells, better actions, improved items and legendary actions when appropriate.
+Use these guidelines when deciding on features:
+ - CR 1–4: few simple abilities or actions with low damage and effect strength.
+ - CR 5–8: more abilities and/or stronger effects, optionally single damage resistances.
+ - CR 9–11: advanced features or multiple special actions per round, stronger spells or special attacks.
+ - CR 12 and higher: typically grant legendary actions. The number and strength of these actions should match the CR (e.g., several small actions or one powerful action).
 - "name": String, the NPC's name.
 - "type": String, the NPC type (for D&D5e usually "npc" or "character").
 - "description": String, a brief biography of the NPC with at least three sentences.
@@ -164,7 +169,7 @@ The NPC's overall power should scale with its challenge rating: higher CR means 
 - "habitat": "" (leave empty).
 - "immunities": "" (leave empty).
 - "actions": Array of 1 to 10 actions taken directly from the official D&D5e compendium (no homebrew). The number of actions should scale with the NPC's CR.
-- If "cr" is 10 or higher, include "legendaryActions": an array of official legendary actions from the compendium.
+ - If "cr" is 12 or higher, include "legendaryActions": an array of official legendary actions from the compendium.
 - Spell levels should match the NPC's challenge rating (about CR/2, capped at 9).
 - "items": Array of Item objects.
 
