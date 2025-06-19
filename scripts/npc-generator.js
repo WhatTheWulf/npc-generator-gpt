@@ -174,9 +174,10 @@ For "tool":
     "proficient": true
   }
 
-For "spell":
+For "spell" (include damage.parts for damage-dealing spells):
   "system": {
     "description": {"value": "A description of the spell."},
+    "damage": {"parts": [["1d8", "fire"]]}, // Example damage for damage spells
     "level": 1,
     "school": "abj", // Or evn, nec, etc.
     "components": {"v": true, "s": true, "m": false},
