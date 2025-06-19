@@ -113,6 +113,8 @@ class NPCGeneratorDialog extends FormApplication {
         const customModel = formData.get("customModel"); // Benutzerdefiniertes OpenAI-Modell
         const temperature = parseFloat(formData.get("temperature")); // Kreativität des Modells
         const topP = parseFloat(formData.get("topP")); // Diversität der Antworten
+        const maxTokensInput = parseInt(formData.get("maxTokens"));
+        const maxTokens = isNaN(maxTokensInput) || maxTokensInput <= 0 ? 1024 : maxTokensInput; // Maximale Tokenzahl
 
         // Validierung der Eingabe für die Anzahl der NPCs
         if (isNaN(numNpcs) || numNpcs <= 0) {
@@ -234,6 +236,7 @@ The response MUST be a valid JSON array containing only the generated NPCs.
             }],
             temperature: temperature,
             top_p: topP,
+            max_tokens: maxTokens,
             response_format: { "type": "json_object" } // Erzwingt JSON-Ausgabe von OpenAI (für neuere Modelle)
         });
 
