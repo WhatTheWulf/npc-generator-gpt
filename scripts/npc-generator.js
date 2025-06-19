@@ -16,6 +16,15 @@ function getValidActorTypes() {
     return Array.isArray(actorTypes) ? actorTypes : [];
 }
 
+// Suche nach einem offiziellen D&D5e Zauber im Compendium
+async function findCompendiumSpellByName(spellName) {
+    const pack = game.packs.get("dnd5e.spells");
+    if (!pack) return null;
+    const index = await pack.getIndex();
+    const entry = index.find(e => e.name?.toLowerCase() === spellName.toLowerCase());
+    return entry ? await pack.getDocument(entry._id) : null;
+}
+
 const skillMap = {
     acrobatics: "acr",
     animalHandling: "ani",
@@ -184,6 +193,8 @@ For "spell" (include damage.parts for damage-dealing spells):
     "preparation": {"mode": "prepared", "prepared": true}
   }
 
+Only use official D&D5e spells from the compendium and never invent new spells.
+
 The response MUST be a valid JSON array containing only the generated NPCs.
 `;
 
@@ -344,12 +355,19 @@ The response MUST be a valid JSON array containing only the generated NPCs.
                         const validItemTypes = getValidItemTypes(); // Gültige Item-Typen des Systems
 
                         for (const item of npcData.items) {
-                            // Stelle sicher, dass ein valides Objekt vorliegt
                             if (item && typeof item === "object" && validItemTypes.includes(item.type)) {
+                                if (item.type === "spell") {
+                                    const compendiumSpell = await findCompendiumSpellByName(item.name || "");
+                                    if (compendiumSpell) {
+                                        itemsToCreate.push(compendiumSpell.toObject());
+                                        continue;
+                                    }
+                                }
+
                                 itemsToCreate.push({
                                     name: item.name || "Unbenanntes Item",
                                     type: item.type,
-                                    system: item.system || {} // Wichtig: 'system' für D&D5e Item-Daten
+                                    system: item.system || {}
                                 });
                             } else {
                                 const type = item?.type || "unbekannt";
