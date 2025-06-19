@@ -152,6 +152,7 @@ Generate ${numNpcs} D&D5e NPCs as a JSON array. Each NPC must have the following
 - "immunities": "" (leave empty).
 - "actions": Array of 1 to 10 official actions from the D&D5e compendium. The number of actions should scale with the NPC's CR.
 - If "cr" is 10 or higher, include "legendaryActions": an array of randomly chosen official legendary actions.
+- Spell levels should match the NPC's challenge rating (about CR/2, capped at 9).
 - "items": Array of Item objects.
 
 Each Item object in the "items" array must have the following structure:
@@ -192,11 +193,11 @@ For "tool":
 For "spell" (include damage.parts for damage-dealing spells):
   "system": {
     "description": {"value": "A description of the spell."},
-    "damage": {"parts": [["1d8", "fire"]]}, // Example damage for damage spells
-    "level": 1,
+    "damage": {"parts": [["1d8", "fire"]]}, // Example damage
+    "level": 2, // Spell level should scale with the NPC's CR (about CR/2, max 9)
     "school": "abj", // Or evn, nec, etc.
     "components": {"v": true, "s": true, "m": false},
-  "preparation": {"mode": "prepared", "prepared": true}
+    "preparation": {"mode": "prepared", "prepared": true}
   }
 
 Only use official D&D5e spells from the compendium and never invent new spells.
