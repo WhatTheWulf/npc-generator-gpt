@@ -194,7 +194,7 @@ For "spell" (include damage.parts for damage-dealing spells):
   }
 
 Only use official D&D5e spells from the compendium and never invent new spells.
-Spellcasting NPCs (wizards, sorcerers, etc.) must include at least two spells in their items array so that they have multiple options.
+Spellcasting NPCs (wizards, sorcerers, etc.) must include spells in their items array. The number of spells should fit the NPC's challenge rating and be between 1 and 10 so that they have multiple options.
 
 The response MUST be a valid JSON array containing only the generated NPCs.
 `;
